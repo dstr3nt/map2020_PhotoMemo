@@ -32,7 +32,23 @@ class _SignInState extends State<SignInScreen> {
           key: formKey,
           child: Column(
             children: <Widget>[
-              Image.asset('assets/images/postit.jpg'),
+              Stack(
+                children: <Widget>[
+                  Image.asset('assets/images/postit.jpg'),
+                  Positioned(
+                    top: 150.0,
+                    left: 110.0,
+                    child: Text(
+                      'PhotoMemo',
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontSize: 35.0,
+                        fontFamily: 'Miniver',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               TextFormField(
                 decoration: InputDecoration(
                   hintText: 'Email',
@@ -80,18 +96,20 @@ class _Controller {
 
     _state.formKey.currentState.save();
 
-    print('=*=*= email : $email  password : $password');
-
     try {
       var user = await FirebaseController.signIn(email, password);
-      print('IT WORKED USER: $user');
     } catch (e) {
       MyDialog.info(
         context: _state.context,
         title: 'Sign In Error',
         content: e.message ?? e.toString(),
       );
+      return;
     }
+
+    //sign in succeeded
+    // 1. read all photomemo's from firebase
+    // 2. navigate to Home Screen to display photomemo
   }
 
   String validatorEmail(String value) {
