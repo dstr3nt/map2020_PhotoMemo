@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:photomemo/controller/firebasecontroller.dart';
 
 class SignInScreen extends StatefulWidget {
   static const routeName = '/signInScreen';
@@ -70,7 +71,7 @@ class _Controller {
   String email;
   String password;
 
-  void signIn() {
+  void signIn() async {
     if (!_state.formKey.currentState.validate()) {
       return;
     }
@@ -78,6 +79,13 @@ class _Controller {
     _state.formKey.currentState.save();
 
     print('=*=*= email : $email  password : $password');
+
+    try {
+      var user = await FirebaseController.signIn(email, password);
+      print('IT WORKED USER: $user');
+    } catch (e) {
+      print('ERROR TEST: $e');
+    }
   }
 
   String validatorEmail(String value) {
