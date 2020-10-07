@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photomemo/controller/firebasecontroller.dart';
+import 'package:photomemo/screens/views/mydialog.dart';
 
 class SignInScreen extends StatefulWidget {
   static const routeName = '/signInScreen';
@@ -31,6 +32,7 @@ class _SignInState extends State<SignInScreen> {
           key: formKey,
           child: Column(
             children: <Widget>[
+              Image.asset('assets/images/postit.jpg'),
               TextFormField(
                 decoration: InputDecoration(
                   hintText: 'Email',
@@ -84,7 +86,11 @@ class _Controller {
       var user = await FirebaseController.signIn(email, password);
       print('IT WORKED USER: $user');
     } catch (e) {
-      print('ERROR TEST: $e');
+      MyDialog.info(
+        context: _state.context,
+        title: 'Sign In Error',
+        content: e.message ?? e.toString(),
+      );
     }
   }
 
