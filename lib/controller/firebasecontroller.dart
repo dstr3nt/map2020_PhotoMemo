@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:photomemo/model/photomemo.dart';
@@ -24,6 +25,7 @@ class FirebaseController {
     QuerySnapshot querySnapShot = await FirebaseFirestore.instance
         .collection(PhotoMemo.COLLECTION)
         .where(PhotoMemo.CREATED_BY, isEqualTo: email)
+        .orderBy(PhotoMemo.UPDATED_AT, descending: true)
         .get();
 
     var result = <PhotoMemo>[];
@@ -41,11 +43,18 @@ class FirebaseController {
     String filePath,
     @required String uid,
     @required List<dynamic> sharedWith,
+    @required Function listener,
   }) async {
     filePath ??= '${PhotoMemo.IMAGE_FOLDER}/$uid/${DateTime.now()}';
 
     StorageUploadTask task =
         FirebaseStorage.instance.ref().child(filePath).putFile(image);
+    task.events.listen((event) {
+      double percentage = (event.snapshot.bytesTransferred.toDouble() /
+          event.snapshot.totalByteCount.toDouble() *
+          100);
+      listener(percentage);
+    });
     var download = await task.onComplete;
     String url = await download.ref.getDownloadURL();
     return {'url': url, 'path': filePath};
@@ -58,5 +67,22 @@ class FirebaseController {
         .collection(PhotoMemo.COLLECTION)
         .add(photoMemo.serialize());
     return ref.id;
+  }
+
+  static Future<List<dynamic>> getImageLabels(File imageFile) async {
+    // Machine Learing Kit
+    FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(imageFile);
+    ImageLabeler cloudLabeler = FirebaseVision.instance.cloudImageLabeler();
+
+    List<ImageLabel> cloudLabels = await cloudLabeler.processImage(visionImage);
+
+    var labels = <String>[];
+    for (ImageLabel label in cloudLabels) {
+      String text = label.text.toLowerCase();
+      double confidence = label.confidence;
+      if (confidence >= PhotoMemo.MIN_CONFIDENCE) labels.add(text);
+    }
+    cloudLabeler.close();
+    return labels;
   }
 }

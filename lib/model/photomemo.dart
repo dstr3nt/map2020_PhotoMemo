@@ -2,14 +2,15 @@ class PhotoMemo {
   //field name for Firestore Documents
   static const COLLECTION = 'photoMemos';
   static const IMAGE_FOLDER = 'photoMemoPictures';
-  static const TITLE = 'Title';
-  static const MEMO = 'Memo';
-  static const CREATED_BY = 'CreatedBy';
-  static const PHOTO_URL = 'PhotoURL';
-  static const PHOTO_PATH = 'PhotoPath';
-  static const UPDATED_AT = 'UpdateAt';
-  static const SHARED_WITH = 'SharedWith';
+  static const TITLE = 'title';
+  static const MEMO = 'memo';
+  static const CREATED_BY = 'createdBy';
+  static const PHOTO_URL = 'photoURL';
+  static const PHOTO_PATH = 'photoPath';
+  static const UPDATED_AT = 'updateAt';
+  static const SHARED_WITH = 'sharedWith';
   static const IMAGE_LABELS = 'imageLabels';
+  static const MIN_CONFIDENCE = 0.70;
 
   String docId; //Firestore doc id
   String createdBy;

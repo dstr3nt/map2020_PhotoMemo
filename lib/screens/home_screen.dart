@@ -90,7 +90,7 @@ class _Controller {
 
   void addButton() async {
     await Navigator.pushNamed(_state.context, AddScreen.routeName,
-        arguments: {'user': _state.user, 'photoMemoList': _state});
+        arguments: {'user': _state.user, 'photoMemoList': _state.photoMemos});
     _state.render(() {});
   }
 
