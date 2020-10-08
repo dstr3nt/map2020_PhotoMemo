@@ -1,6 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:photomemo/controller/firebasecontroller.dart';
+import 'package:photomemo/model/photomemo.dart';
 import 'package:photomemo/screens/views/mydialog.dart';
+import 'package:photomemo/screens/home_screen.dart';
 
 class SignInScreen extends StatefulWidget {
   static const routeName = '/signInScreen';
@@ -96,9 +100,13 @@ class _Controller {
 
     _state.formKey.currentState.save();
 
+    MyDialog.circularProgreeStart(_state.context);
+
+    User user;
     try {
-      var user = await FirebaseController.signIn(email, password);
+      user = await FirebaseController.signIn(email, password);
     } catch (e) {
+      MyDialog.circularProgressEnd(_state.context);
       MyDialog.info(
         context: _state.context,
         title: 'Sign In Error',
@@ -109,7 +117,25 @@ class _Controller {
 
     //sign in succeeded
     // 1. read all photomemo's from firebase
-    // 2. navigate to Home Screen to display photomemo
+
+    try {
+      List<PhotoMemo> photoMemos =
+          await FirebaseController.getPhotoMemos(user.email);
+      MyDialog.circularProgressEnd(_state.context);
+      // 2. navigate to Home Screen to display photomemo
+      Navigator.pushReplacementNamed(_state.context, HomeScreen.routeName,
+          arguments: {'user': user, 'photoMemoList': photoMemos});
+      print('TESTTESTTESTTEST');
+      print(photoMemos.toString());
+    } catch (e) {
+      MyDialog.circularProgressEnd(_state.context);
+      MyDialog.info(
+        context: _state.context,
+        title: 'Firebase/Firestore error',
+        content:
+            'Cannot get photo memo docuement. Try again later! \n ${e.message}',
+      );
+    }
   }
 
   String validatorEmail(String value) {
