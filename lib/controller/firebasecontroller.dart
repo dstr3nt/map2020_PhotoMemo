@@ -85,4 +85,55 @@ class FirebaseController {
     cloudLabeler.close();
     return labels;
   }
+
+  static Future<void> deletePhotoMemo(PhotoMemo photoMemo) async {
+    await FirebaseFirestore.instance
+        .collection(PhotoMemo.COLLECTION)
+        .doc(photoMemo.docId)
+        .delete();
+
+    await FirebaseStorage.instance.ref().child(photoMemo.photoPath).delete();
+  }
+
+  static Future<List<PhotoMemo>> searchImages({
+    @required String email,
+    @required String imageLabel,
+  }) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(PhotoMemo.COLLECTION)
+        .where(PhotoMemo.CREATED_BY, isEqualTo: email)
+        .where(PhotoMemo.IMAGE_LABELS, arrayContains: imageLabel.toLowerCase())
+        .orderBy(PhotoMemo.UPDATED_AT, descending: true)
+        .get();
+    var result = <PhotoMemo>[];
+    if (querySnapshot != null && querySnapshot.docs.length != 0) {
+      for (var doc in querySnapshot.docs) {
+        result.add(PhotoMemo.deserialized(doc.data(), doc.id));
+      }
+    }
+    return result;
+  }
+
+  static Future<void> updatePhotoMemo(PhotoMemo photoMemo) async {
+    photoMemo.updatedAt = DateTime.now();
+    await FirebaseFirestore.instance
+        .collection(PhotoMemo.COLLECTION)
+        .doc(photoMemo.docId)
+        .set(photoMemo.serialize());
+  }
+
+  static Future<List<PhotoMemo>> getPhotoMemosSharedWithMe(String email) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(PhotoMemo.COLLECTION)
+        .where(PhotoMemo.SHARED_WITH, arrayContains: email)
+        .orderBy(PhotoMemo.UPDATED_AT, descending: true)
+        .get();
+    var result = <PhotoMemo>[];
+    if (querySnapshot != null && querySnapshot.docs.length != 0) {
+      for (var doc in querySnapshot.docs) {
+        result.add(PhotoMemo.deserialized(doc.data(), doc.id));
+      }
+    }
+    return result;
+  }
 }
