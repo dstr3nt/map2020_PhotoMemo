@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:photomemo/controller/firebasecontroller.dart';
 import 'package:photomemo/model/photomemo.dart';
 import 'package:photomemo/screens/detailed_screen.dart';
+import 'package:photomemo/screens/settings_screen.dart';
 import 'package:photomemo/screens/sharedwith_screen.dart';
 import 'package:photomemo/screens/signin_screen.dart';
 import 'package:photomemo/screens/add_screen.dart';
+import 'package:photomemo/screens/message_screen.dart';
 import 'package:photomemo/screens/views/mydialog.dart';
 import 'package:photomemo/screens/views/myimageview.dart';
 
@@ -75,8 +77,19 @@ class _HomeState extends State<HomeScreen> {
           child: ListView(
             children: <Widget>[
               UserAccountsDrawerHeader(
+                currentAccountPicture: ClipOval(
+                  child: MyImageView.network(
+                    imageUrl: user.photoURL,
+                    context: context,
+                  ),
+                ),
                 accountName: Text(user.email),
                 accountEmail: Text(user.displayName ?? 'N/A'),
+              ),
+              ListTile(
+                leading: Icon(Icons.chat_outlined),
+                title: Text('Messages'),
+                onTap: con.messages,
               ),
               ListTile(
                 leading: Icon(Icons.people),
@@ -87,6 +100,11 @@ class _HomeState extends State<HomeScreen> {
                 leading: Icon(Icons.exit_to_app),
                 title: Text('Sign Out'),
                 onTap: con.signOut,
+              ),
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('Settings'),
+                onTap: con.settings,
               ),
             ],
           ),
@@ -139,6 +157,23 @@ class _Controller {
   String searchKey;
 
   _Controller(this._state);
+
+  void messages() {
+    Navigator.pushNamed(_state.context, MessageScreen.routeName);
+  }
+
+  void settings() async {
+    await Navigator.pushNamed(
+      _state.context,
+      SettingScreen.routeName,
+      arguments: _state.user,
+    );
+    // to get updteed user profile do the following 2 steps
+    await _state.user.reload();
+    _state.user = FirebaseAuth.instance.currentUser;
+
+    Navigator.pop(_state.context);
+  }
 
   void sharedWith() async {
     try {

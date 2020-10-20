@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:photomemo/controller/firebasecontroller.dart';
 import 'package:photomemo/model/photomemo.dart';
+import 'package:photomemo/screens/signup_screen.dart';
 import 'package:photomemo/screens/views/mydialog.dart';
 import 'package:photomemo/screens/home_screen.dart';
 
@@ -79,6 +80,14 @@ class _SignInState extends State<SignInScreen> {
                 color: Colors.green,
                 onPressed: con.signIn,
               ),
+              SizedBox(height: 30.0),
+              FlatButton(
+                onPressed: con.signUp,
+                child: Text(
+                  'No Account yet? Click here to Create',
+                  style: TextStyle(fontSize: 15.0),
+                ),
+              ),
             ],
           ),
         ),
@@ -92,6 +101,10 @@ class _Controller {
   _Controller(this._state);
   String email;
   String password;
+
+  void signUp() async {
+    Navigator.pushNamed(_state.context, SignUpScreen.routeName);
+  }
 
   void signIn() async {
     if (!_state.formKey.currentState.validate()) {
