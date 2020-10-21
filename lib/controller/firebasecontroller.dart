@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:photomemo/model/message.dart';
 import 'package:photomemo/model/photomemo.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -170,5 +171,21 @@ class FirebaseController {
       await FirebaseAuth.instance.currentUser
           .updateProfile(displayName: displayName);
     }
+  }
+//++++++++++++++MESSAGES BOARD+++++++++++++++++
+
+  static Future<List<Message>> getMessages(String email) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Message.COLLECTION)
+        .where(Message.CREATED_BY, isEqualTo: email)
+        .orderBy(Message.DATE_SENT, descending: true)
+        .get();
+    var result = <Message>[];
+    if (querySnapshot != null && querySnapshot.docs.length != 0) {
+      for (var doc in querySnapshot.docs) {
+        result.add(Message.deserialized(doc.data(), doc.id));
+      }
+    }
+    return result;
   }
 }

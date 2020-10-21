@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:photomemo/controller/firebasecontroller.dart';
+import 'package:photomemo/model/message.dart';
 import 'package:photomemo/model/photomemo.dart';
 import 'package:photomemo/screens/detailed_screen.dart';
 import 'package:photomemo/screens/settings_screen.dart';
@@ -24,6 +25,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeState extends State<HomeScreen> {
   User user;
   List<PhotoMemo> photoMemos;
+  List<Message> messages;
   _Controller con;
   var formKey = GlobalKey<FormState>();
 
@@ -40,6 +42,7 @@ class _HomeState extends State<HomeScreen> {
     Map arg = ModalRoute.of(context).settings.arguments;
     user ??= arg['user'];
     photoMemos ??= arg['photoMemoList'];
+    messages ??= arg['messageList'];
 
     return WillPopScope(
       onWillPop: () => Future.value(false),
@@ -158,8 +161,21 @@ class _Controller {
 
   _Controller(this._state);
 
-  void messages() {
-    Navigator.pushNamed(_state.context, MessageScreen.routeName);
+  void messages() async {
+    try {
+      List<Message> messages =
+          await FirebaseController.getMessages(_state.user.email);
+
+      await Navigator.pushNamed(
+        _state.context,
+        MessageScreen.routeName,
+        arguments: {
+          'user': _state.user,
+          'messageList': messages,
+        },
+      );
+      Navigator.pop(_state.context); //close the drawer
+    } catch (e) {}
   }
 
   void settings() async {

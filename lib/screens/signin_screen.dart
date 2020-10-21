@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:photomemo/controller/firebasecontroller.dart';
+import 'package:photomemo/model/message.dart';
 import 'package:photomemo/model/photomemo.dart';
 import 'package:photomemo/screens/signup_screen.dart';
 import 'package:photomemo/screens/views/mydialog.dart';
@@ -101,7 +102,8 @@ class _Controller {
   _Controller(this._state);
   String email;
   String password;
-
+  User user;
+  List<Message> messages;
   void signUp() async {
     Navigator.pushNamed(_state.context, SignUpScreen.routeName);
   }
@@ -115,7 +117,6 @@ class _Controller {
 
     MyDialog.circularProgreeStart(_state.context);
 
-    User user;
     try {
       user = await FirebaseController.signIn(email, password);
     } catch (e) {
@@ -129,7 +130,21 @@ class _Controller {
     }
 
     //sign in succeeded
-    // 1. read all photomemo's from firebase
+    // 1. Build messages List from firebase
+
+    try {
+      List<Message> messages = await FirebaseController.getMessages(user.email);
+      print(messages.toString());
+    } catch (e) {
+      MyDialog.info(
+        context: _state.context,
+        title: 'Firebase/Firestore error',
+        content:
+            'Cannot get Message docuement. Try again later! \n ${e.message}',
+      );
+    }
+
+    // 2. read all photomemo's from firebase
 
     try {
       List<PhotoMemo> photoMemos =
@@ -137,9 +152,11 @@ class _Controller {
       MyDialog.circularProgressEnd(_state.context);
       // 2. navigate to Home Screen to display photomemo
       Navigator.pushReplacementNamed(_state.context, HomeScreen.routeName,
-          arguments: {'user': user, 'photoMemoList': photoMemos});
-      print('TESTTESTTESTTEST');
-      print(photoMemos.toString());
+          arguments: {
+            'user': user,
+            'photoMemoList': photoMemos,
+            'messageList': messages,
+          });
     } catch (e) {
       MyDialog.circularProgressEnd(_state.context);
       MyDialog.info(
