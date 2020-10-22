@@ -212,4 +212,11 @@ class FirebaseController {
         .add(message.serialize());
     return ref.id;
   }
+
+  static Future<void> deleteMessage(Message message) async {
+    await FirebaseFirestore.instance
+        .collection(Message.COLLECTION)
+        .doc(message.docId)
+        .delete();
+  }
 }
