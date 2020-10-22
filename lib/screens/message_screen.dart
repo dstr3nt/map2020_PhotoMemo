@@ -18,6 +18,7 @@ class _MessageState extends State<MessageScreen> {
   _Controller con;
   User user;
   List<Message> messages;
+  var formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -35,8 +36,27 @@ class _MessageState extends State<MessageScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Message Board'),
+        title: Text("MSGs"),
         actions: <Widget>[
+          Container(
+            width: 135.0,
+            child: Form(
+              key: formKey,
+              child: TextFormField(
+                decoration: InputDecoration(
+                  fillColor: Colors.grey[50],
+                  hintText: 'passKey',
+                  filled: true,
+                ),
+                autocorrect: false,
+                onSaved: con.onSavedPassCode,
+              ),
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: con.decode,
+          ),
           con.delIndex == null
               ? IconButton(
                   icon: Icon(Icons.add_comment_outlined),
@@ -138,4 +158,27 @@ class _Controller {
       );
     }
   }
+
+  void onSavedPassCode(String value) {
+    passKey = value;
+  }
+
+  void decode() {}
+
+  /*
+  decode() {
+      _state.formKey.currentState.save();
+
+    var results;
+    if (passKey == null || passKey.trim().isEmpty) {
+      results = await FirebaseController.getMessagesSentToMe(_state.user.email);
+    } else {
+      results = await FirebaseController.searchImages(
+        email: _state.user.email,
+        imag: searchKey,
+      );
+    }
+    _state.render(() => _state.messages = results);
+  }
+  */
 }

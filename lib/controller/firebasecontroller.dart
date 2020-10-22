@@ -219,4 +219,24 @@ class FirebaseController {
         .doc(message.docId)
         .delete();
   }
+
+  static Future<List<Message>> decodeMesssages({
+    @required String email,
+    @required String passCode,
+  }) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Message.COLLECTION)
+        .where(Message.SENT_TO, isEqualTo: email)
+        .orderBy(Message.DATE_SENT, descending: true)
+        .get();
+    var result = <Message>[];
+    if (querySnapshot != null && querySnapshot.docs.length != 0) {
+      for (var doc in querySnapshot.docs) {
+        result.add(Message.deserialized(doc.data(), doc.id));
+      }
+    }
+    return result;
+  }
+
+  static List<Message> decoding() {}
 }

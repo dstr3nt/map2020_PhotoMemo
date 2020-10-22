@@ -3,6 +3,7 @@ class Message {
   static const COLLECTION = 'messages';
   static const CREATED_BY = 'createdBy';
   static const SENT_TO = 'sentTo';
+  static const PASSCODE = 'passCode';
   static const TITLE = 'title';
   static const MESSAGE = 'message';
   static const DATE_SENT = 'dateSent';
@@ -10,14 +11,16 @@ class Message {
   String docId; //Firestore doc id
   String createdBy;
   String sentTo;
+  String passCode;
   String title;
-  String message;
+  dynamic message;
   DateTime dateSent;
 
   Message({
     this.docId,
     this.createdBy,
     this.sentTo,
+    this.passCode,
     this.title,
     this.message,
     this.dateSent,
@@ -28,6 +31,7 @@ class Message {
     return <String, dynamic>{
       CREATED_BY: createdBy,
       SENT_TO: sentTo,
+      PASSCODE: passCode,
       TITLE: title,
       MESSAGE: message,
       DATE_SENT: dateSent,
@@ -35,11 +39,12 @@ class Message {
   }
 
   // convert FIRESTORE document to DART object
-  static Message deserialized(Map<String, dynamic> data, String docId) {
+  static Message deserialized(Map<dynamic, dynamic> data, String docId) {
     return Message(
       docId: docId,
       createdBy: data[Message.CREATED_BY],
       sentTo: data[Message.SENT_TO],
+      passCode: data[Message.PASSCODE],
       title: data[Message.TITLE],
       message: data[Message.MESSAGE],
       dateSent: data[Message.DATE_SENT] != null
@@ -51,6 +56,6 @@ class Message {
 
   @override
   String toString() {
-    return '$docId \n $createdBy \n $title \n $message';
+    return '$docId \n $createdBy \n $passCode \n $title \n $message';
   }
 }
