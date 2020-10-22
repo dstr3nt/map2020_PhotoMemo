@@ -173,8 +173,6 @@ class _Controller {
           });
         },
       );
-      print('+++++++++: ${photoInfo["path"]}');
-      print('+++++++++: ${photoInfo["url"]}');
 
       //2. get image labels by Machine Learning kit
       _state.render(() => uploadProgressMessage = 'ML Image Labler started');

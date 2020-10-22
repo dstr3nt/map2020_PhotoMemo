@@ -217,7 +217,7 @@ class _Controller {
     List<String> emailList = value.split(',').map((e) => e.trim()).toList();
     for (String email in emailList) {
       if (!email.contains('@') && email.contains('.'))
-        return 'Slash(/) separated email list';
+        return 'Comma(,) separated email list';
     }
     return null;
   }

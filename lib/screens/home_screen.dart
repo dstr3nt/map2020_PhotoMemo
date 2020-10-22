@@ -164,7 +164,7 @@ class _Controller {
   void messages() async {
     try {
       List<Message> messages =
-          await FirebaseController.getMessages(_state.user.email);
+          await FirebaseController.getMessagesSentToMe(_state.user.email);
 
       await Navigator.pushNamed(
         _state.context,

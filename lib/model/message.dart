@@ -5,7 +5,6 @@ class Message {
   static const SENT_TO = 'sentTo';
   static const TITLE = 'title';
   static const MESSAGE = 'message';
-  static const MESSAGEPATH = 'messagePath';
   static const DATE_SENT = 'dateSent';
 
   String docId; //Firestore doc id
@@ -13,7 +12,6 @@ class Message {
   String sentTo;
   String title;
   String message;
-  String messagePath;
   DateTime dateSent;
 
   Message({
@@ -22,7 +20,6 @@ class Message {
     this.sentTo,
     this.title,
     this.message,
-    this.messagePath,
     this.dateSent,
   });
 
@@ -33,7 +30,6 @@ class Message {
       SENT_TO: sentTo,
       TITLE: title,
       MESSAGE: message,
-      MESSAGEPATH: messagePath,
       DATE_SENT: dateSent,
     };
   }
@@ -46,7 +42,6 @@ class Message {
       sentTo: data[Message.SENT_TO],
       title: data[Message.TITLE],
       message: data[Message.MESSAGE],
-      messagePath: data[Message.MESSAGEPATH],
       dateSent: data[Message.DATE_SENT] != null
           ? DateTime.fromMillisecondsSinceEpoch(
               data[Message.DATE_SENT].millisecondsSinceEpoch)

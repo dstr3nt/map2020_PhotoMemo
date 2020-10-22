@@ -1,4 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:photomemo/controller/firebasecontroller.dart';
+import 'package:photomemo/model/message.dart';
+import 'package:photomemo/screens/views/mydialog.dart';
 
 class SendMessageScreen extends StatefulWidget {
   static const routeName = '/home/MessageScreen/SendMessageScreen';
@@ -11,6 +15,9 @@ class SendMessageScreen extends StatefulWidget {
 class _SendMessageState extends State<SendMessageScreen> {
   _Controller con;
   var formKey = GlobalKey<FormState>();
+  User user;
+  List<Message> messages;
+
   @override
   void initState() {
     super.initState();
@@ -21,6 +28,10 @@ class _SendMessageState extends State<SendMessageScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Map args = ModalRoute.of(context).settings.arguments;
+    user ??= args['user'];
+    messages ??= args['messageList'];
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Send Message'),
@@ -32,6 +43,7 @@ class _SendMessageState extends State<SendMessageScreen> {
         ],
       ),
       body: Form(
+        key: formKey,
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
@@ -47,7 +59,7 @@ class _SendMessageState extends State<SendMessageScreen> {
                 ),
                 autocorrect: true,
                 validator: con.validatorTitle,
-                onSaved: con.validatorTitle,
+                onSaved: con.onSavedTitle,
               ),
               TextFormField(
                 decoration: InputDecoration(
@@ -72,19 +84,20 @@ class _Controller {
   _Controller(this._state);
   String title;
   String message;
-
-  void send() {}
+  String sentTo;
 
   String validatorSendTo(String value) {
-    if (value.contains('@') && value.contains('.')) {
-      return 'Valid Email Required';
+    if (value == null || !value.contains('@') || !value.contains('.')) {
+      return 'Invaild Email Address';
     } else {
       return null;
     }
   }
 
   void onSavedSendTo(String value) {
-    this.title = value;
+    if (value.trim().length != 0) {
+      this.sentTo = value;
+    }
   }
 
   String validatorTitle(String value) {
@@ -109,5 +122,34 @@ class _Controller {
 
   void onSavedMessage(String value) {
     this.message = value;
+  }
+
+  void send() async {
+    if (!_state.formKey.currentState.validate()) {
+      return;
+    }
+    _state.formKey.currentState.save();
+    try {
+      MyDialog.circularProgreeStart(_state.context);
+      var p = Message(
+        title: title,
+        message: message,
+        createdBy: _state.user.email,
+        sentTo: sentTo,
+      );
+
+      p.docId = await FirebaseController.addMessage(p);
+      _state.messages.insert(0, p);
+      MyDialog.circularProgressEnd(_state.context);
+    } catch (e) {
+      MyDialog.circularProgressEnd(_state.context);
+
+      MyDialog.info(
+        context: _state.context,
+        title: 'Firebase Message Upload Error',
+        content: e.message ?? e.toString(),
+      );
+    }
+    Navigator.pop(_state.context);
   }
 }

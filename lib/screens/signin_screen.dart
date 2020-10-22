@@ -133,7 +133,8 @@ class _Controller {
     // 1. Build messages List from firebase
 
     try {
-      List<Message> messages = await FirebaseController.getMessages(user.email);
+      List<Message> messages =
+          await FirebaseController.getMessagesSentToMe(user.email);
       print(messages.toString());
     } catch (e) {
       MyDialog.info(

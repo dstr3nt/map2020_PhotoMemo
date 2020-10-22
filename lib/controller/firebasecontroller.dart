@@ -188,4 +188,28 @@ class FirebaseController {
     }
     return result;
   }
+
+  static Future<List<Message>> getMessagesSentToMe(String email) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Message.COLLECTION)
+        .where(Message.SENT_TO, isEqualTo: email)
+        .orderBy(Message.DATE_SENT, descending: true)
+        .get();
+    var result = <Message>[];
+    if (querySnapshot != null && querySnapshot.docs.length != 0) {
+      for (var doc in querySnapshot.docs) {
+        result.add(Message.deserialized(doc.data(), doc.id));
+      }
+    }
+    return result;
+  }
+
+  static Future<String> addMessage(Message message) async {
+    message.dateSent = DateTime.now();
+
+    DocumentReference ref = await FirebaseFirestore.instance
+        .collection(Message.COLLECTION)
+        .add(message.serialize());
+    return ref.id;
+  }
 }

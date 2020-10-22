@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:photomemo/controller/firebasecontroller.dart';
 import 'package:photomemo/model/message.dart';
 import 'package:photomemo/screens/sendmessage_screen.dart';
 
@@ -55,16 +56,12 @@ class _MessageState extends State<MessageScreen> {
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 child: ListTile(
-                  title: Text(messages[index].createdBy),
+                  title: Text('From : ${messages[index].createdBy}'),
                   subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        messages[index].title,
-                        style: TextStyle(fontSize: 20.0),
-                      ),
-                      Text(
-                        messages[index].message,
-                      ),
+                      Text('subject : ${messages[index].title}'),
+                      Center(child: Text(messages[index].message)),
                     ],
                   ),
                 ),
@@ -78,7 +75,21 @@ class _Controller {
   _MessageState _state;
   _Controller(this._state);
 
-  void sendMessage() {
-    Navigator.pushNamed(_state.context, SendMessageScreen.routeName);
+  void sendMessage() async {
+    try {
+      List<Message> messages =
+          await FirebaseController.getMessagesSentToMe(_state.user.email);
+
+      await Navigator.pushNamed(
+        _state.context,
+        SendMessageScreen.routeName,
+        arguments: {
+          'user': _state.user,
+          'messageList': messages,
+        },
+      );
+    } catch (e) {
+      print(e);
+    }
   }
 }
